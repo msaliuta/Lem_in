@@ -6,25 +6,30 @@
 /*   By: msaliuta <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/06 17:47:41 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/06 17:57:37 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/14 15:08:43 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef	LEM_IN_H
 # define LEM_IN_H
 
-# include "../libftprintf/includes/lidft.h"
+# include "../libftprintf/includes/libft.h"
 
-typedef struct	s_lemin
+typedef struct		s_lemin
 {
-	int			x;
-	int			y;
+	char			*str;
+	struct	s_lemin	*next;
+}					t_lemin;
 
-}				t_lemin
-
-typedef struct	s_cnct
+typedef struct		s_node
 {
-	char			node1;
-	char			node2;
+	int				stfn;
+	int				width;
+	int				used;
+	int				x;
+	int				y;
+	char			*title;
 	struct	s_cnct	*next;
-}				t_cnct
+}					t_node;
+
+#endif
