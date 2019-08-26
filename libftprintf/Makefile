@@ -36,7 +36,8 @@ SRCS	=	ft_bzero \
     ft_atoi \
     ft_islower \
     ft_isupper \
-    ft_isalpha \
+	ft_isalpha \
+	ft_chr_count \
     ft_isdigit \
     ft_isalnum \
     ft_isprint \
@@ -101,7 +102,8 @@ SRCS	=	ft_bzero \
     print_wdthpdr \
     print_prec_tools \
     ft_arrclr \
-    ft_atoi_base\
+    ft_atoi_base \
+	ft_atol \
 
 OBJS	=	$(addprefix obj/, $(addsuffix .o, $(SRCS)))
 

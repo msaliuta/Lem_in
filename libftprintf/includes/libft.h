@@ -37,6 +37,8 @@ typedef	struct		s_list
 	struct s_list	*next;
 }					t_list;
 
+int					ft_chr_count(char *line, char t);
+long					ft_atol(const char *str);
 int					ft_min(int a, int b);
 int					ft_atoi_base(const char *s, int base);
 int					ft_max(int a, int b);

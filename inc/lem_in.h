@@ -15,69 +15,41 @@
 
 # include "../libftprintf/includes/libft.h"
 
-// typedef struct		s_lemin
-// {
-// 	char			*str;
-// 	struct	s_lemin	*next;
-// }					t_lemin;
+typedef struct	s_room		t_room;
+typedef struct	s_array		t_array;
+typedef	struct	s_lem_in	t_struct;
 
-// typedef struct		s_node
-// {
-// 	int				stfn;
-// 	int				width;
-// 	int				used;
-// 	int				x;
-// 	int				y;
-// 	char			*title;
-// 	struct	s_cnct	*next;
-// }					t_node;
-
-typedef	struct		s_room
+struct	s_room
 {
-	char			*name;
-	int				x;
-	int				y;
-	int				startend;
-	int				wth;
-	int				taken;
-	int				used;
-	struct s_room	*next;
-}					t_room;
+	t_array		*links;
+	t_room		*parent;
+	t_room		*next;
+	char		*name;
+	int		x;
+	int		y;
+	short		dst_from_end;
+	unsigned int	full_of_ants;
+	bool		visited;
+};
 
-typedef	struct		s_write
+struct	s_array
 {
-	char			*str;
-	struct s_write	*next;
-}					t_write;
+	t_room		**links;
+	unsigned short	limit;
+	unsigned short	size;
+};
 
-typedef	struct		s_path
+struct	s_lem_in
 {
-	int				**path;
-	int				**node;
-	int				*len;
-	int				step;
-	int				path_n;
-}					t_path;
+	t_room		*start;
+	t_room		*end;
+	int		ants;
+	int		dst;
+	int		ants_at_the_end;
+	int		ants_left_at_start;
+	unsigned short	count_of_rooms;
+	bool		space;
+};
 
-int		check_args(int ac, char **av, int *arg_used);
-void	read_n_stock(int *ant_n, t_room **room, t_write **str);
-void	stock_room(char *line, t_room **begin, int *startend, int *error);
-int		valid_digit(char *line);
-int		room_form_is_valid(char *str);
-int		extract_room_x(char *str, int *error);
-char	*extract_room_name(char *str);
-int		extract_room_y(char *str, int *error);
-int		room_already_exist(t_room **begin, t_room *new, t_room **end);
-int		link_form_is_valid(char *str);
-int		ft_isalnum(int c);
-void	save_line(char *line, int *error, t_write **str);
-void	stock_to_write(char *line, t_write **begin);
-int		command_is_valid(char *str);
-void	set_startend(char *line, int *startend, int *error);
-void	free_lst_write(t_write **begin);
-void	free_lst_room(t_room **begin);
-char	*ft_strndup(const char *s, size_t n);
-void	coord_is_valid(char *coord, int *error);
-long	ft_atol(const char *str);
 
 #endif
