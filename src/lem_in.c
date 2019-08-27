@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/27 15:27:19 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/28 00:13:52 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/28 02:49:26 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void	terminate(char *message)
 {
 	ft_printf("ERROR: %s\n", message);
+	system("leaks -q lem-in");
 	exit(1);
 }
 
@@ -38,22 +39,18 @@ bool	expandable_arr(t_array **old)
 	return (true);
 }
 
-int		is_room_exist(t_room **tmp, char *name_from)
+int		is_room_exist(t_room **r_a, t_room **r_b, char **n_a, char **n_b)
 {
-	while ((*tmp) && !ft_strequ((*tmp)->name, name_from))
-		if ((*tmp)->next)
-			*tmp = (*tmp)->next;
-		else
-			terminate("Room does not exist");
-	// if (!(*tmp)->links)
-	// {
-	// 	ft_printf("error: room exist");
-	// 	exit(EXIT_FAILURE);
-	// }
+	while ((*r_a) && !ft_strequ((*r_a)->name, *n_a))
+		*r_a = (*r_a)->next;
+	while ((*r_b) && !ft_strequ((*r_b)->name, *n_b))
+		*r_b = (*r_b)->next;
+	if (!(*r_a) || !(*r_b))
+		terminate("Room does not exist");
 	return (1);
 }
 
-int		set_link(t_room *lst, char *line)
+int		set_link(t_struct *lemin, t_room *lst, char *line)
 {
 	int		i;
 	t_room	*room_a;
@@ -61,23 +58,24 @@ int		set_link(t_room *lst, char *line)
 	char	*name_from;
 	char	*name_to;
 
+	(!(lemin->start) || !(lemin->end)) ? terminate("No start or end room") : 0;
 	i = 0;
 	room_a = lst;
 	room_b = lst;
 	name_from = ft_memalloc(sizeof(char) * (ft_strchr(line, '-') - line + 1));
 	name_to = ft_strdup(ft_strchr(line, '-') + 1);
 	ft_memcpy(name_from, line, ft_strchr(line, '-') - line);
-	is_room_exist(&room_a, name_from) && is_room_exist(&room_b, name_to);
+	is_room_exist(&room_a, &room_b, &name_from, &name_to);
 	while (room_a->links->links[i])
 		++i == room_a->links->limit ? expandable_arr(&room_a->links) : 0;
 	(room_a->links->links[i] = room_b) && (room_a->links->size++);
-	room_a->links->links[++i] = NULL;
-	i = 0;
+	!(room_a->links->links[++i] = NULL) ? ft_bzero(&i, sizeof(int)) : 0;
 	while (room_b->links->links[i])
 		++i == room_b->links->limit ? expandable_arr(&room_b->links) : 0;
 	(room_b->links->links[i] = room_a) && (room_b->links->size++);
 	room_b->links->links[++i] = NULL;
 	free(name_to);
+	free(name_from);
 	return (1);
 }
 
@@ -145,6 +143,7 @@ bool	check_roomd(char *line, t_room *tmp)
 	ft_strncpy(name, line, i - line - 1);
 	if (ft_strequ(name, tmp->name))
 		terminate("Room with same name");
+	free(name);
 	return (true);
 }
 
@@ -208,9 +207,11 @@ void	parse_l(t_room *rooms, t_struct *lemin, t_input *input)
 	i = 0;
 	while (get_next_line(0, &line) > 0)
 	{
+		input->next = save_input(line);
+		input = input->next;
 		if (lemin->ants == 0 && check_ants(line))
 			lemin->ants = ft_atoi(line);
-		else if (line[0] == '#' && line[1] == '#' && i == 0 && lemin->ants > 0)
+		else if (line[0] == '#' && line[1] == '#' && i == 0 && lemin->ants)
 		{
 			ft_strequ(line, "##start") ? (i = 1) : 0;
 			ft_strequ(line, "##end") ? (i = 2) : 0;
@@ -219,25 +220,27 @@ void	parse_l(t_room *rooms, t_struct *lemin, t_input *input)
 			continue ;
 		else if (ft_chr_count(line, ' ') == 2 && *line != 'L' && lemin->ants)
 			set_room(&rooms, lemin, line, i) ? (i = 0) : 0;
-		else if (ft_chr_count(line, '-') && line[0] != '#')
-			set_link(rooms, line) && (lemin->links = 1);
+		else if (ft_chr_count(line, '-') && line[0] != '#' && i == 0)
+			set_link(lemin, rooms, line) && (lemin->links = 1);
 		else
 			terminate("Input invalid");
-		input->next = save_input(line);
-		input = input->next;
-		// tmp = tmp->next;
-		// ft_printf("%s\n", tmp->str);
-		//ft_strdel(&line);
 	}
 }
 
-int	main(int ac, char **av)
+void	print_input(t_input *input)
 {
-	//t_array		*ways;
+	while ((input = input->next))
+		ft_printf("%s\n", input->str);
+}
+
+int		main(int ac, char **av)
+{
 	t_room		*rooms;
 	t_struct	*lemin;
 	t_input		*input;
+	//t_array		*ways;
 
+	//ways = ft_memalloc(sizeof(t_input));
 	input = ft_memalloc(sizeof(t_input));
 	lemin = ft_memalloc(sizeof(t_struct));
 	rooms = ft_memalloc(sizeof(t_room));
@@ -247,15 +250,10 @@ int	main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	parse_l(rooms, lemin, input);
-	(!lemin->start || !lemin->end) ? terminate("No start or end room") : 0;
 	(!lemin->links) ? terminate("No links") : 0;
-	while ((input = input->next))
-		ft_printf("%s\n", input->str);
-	// while (input)
-	// {
-	// 	ft_printf("%s\n", input->str);
-	// 	input = input->next;
-	// }
+	print_input(input);
+	//find_the_ways(lemin, ways, av[1]);
 	ft_printf("%s\n", "valid input");
+	system("leaks -q lem-in");
 	return (0);
 }
