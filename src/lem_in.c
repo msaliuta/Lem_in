@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lem_in.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/27 15:27:19 by msaliuta          #+#    #+#             */
+/*   Updated: 2019/08/27 20:31:59 by msaliuta         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lem_in.h"
 
 bool	expandable_arr(t_array **old)
@@ -30,12 +42,12 @@ void	is_room_exist(t_room **tmp, char *name_from)
 			*tmp = (*tmp)->next;
 		else
 		{
-			ft_printf("error");
+			ft_printf("error: no room");
 			exit(EXIT_FAILURE);
 		}
 	if (!(*tmp)->links)
 	{
-		ft_printf("error");
+		ft_printf("error: no room");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -130,14 +142,14 @@ bool	check_roomd(char *line, t_room *tmp)
 
 	if (tmp->x == atoi(i) && tmp->y == atoi(j))
 	{
-		ft_printf("error");
+		ft_printf("error: same room coords");
 		exit(EXIT_FAILURE);
 	}
 	ft_bzero(name, 256);
 	ft_memcpy(name, line, i - line - 1);
 	if (ft_strequ(name, tmp->name))
 	{
-		ft_printf("error");
+		ft_printf("error: same room name");
 		exit(EXIT_FAILURE);
 	}
 	return (true);
@@ -165,10 +177,10 @@ bool	set_room(t_room **rooms, t_struct *lemin, char *line, int n)
 	}
 	if ((n == 1 && lemin->start) || (n == 2 && lemin->end))
 	{
-		ft_printf("%s\n", "error");
+		ft_printf("%s\n", "error: no start or end");
 		exit (EXIT_FAILURE);
 	}
-	printf("%d%d%s\n", tmp->x, tmp->y, tmp->name);
+	//printf("%d%d%s\n", tmp->x, tmp->y, tmp->name);
 	n == 1 ? lemin->start = tmp : 0;
 	n == 2 ? lemin->end = tmp : 0;
 	return (true);
@@ -192,6 +204,7 @@ void	parse_l(t_room *rooms, t_struct *lemin, int err)
 	int	i;
 	char	*line;
 
+	i = 0;
 	line = 0;
 	lemin->dst = 0;
 	lemin->count_of_rooms = 0;
@@ -199,15 +212,14 @@ void	parse_l(t_room *rooms, t_struct *lemin, int err)
 	{
 		if (lemin->ants == 0 && check_ants(line))
 			lemin->ants = ft_atoi(line);
-		else if (line[0] == '#' && i != 0)
-			err = 1;
+		// else if (line[0] == '#' && i != 0)
+		// 	err = 1;
 		else if (line[0] == '#' && line[1] == '#' && i == 0 && lemin->ants > 0)
 		{
 			ft_strequ(line, "##start") ? (i = 1) : 0;
 			ft_strequ(line, "##end") ? (i = 2) : 0;
 		}
-		else if (ft_chr_count(line, ' ') == 2 &&
-			line[0] != 'L' && lemin->ants > 0)
+		else if (ft_chr_count(line, ' ') == 2 && line[0] != 'L' && lemin->ants > 0)
 			set_room(&rooms, lemin, line, i) ? (i = 0) : 0;
 		else if (ft_chr_count(line, '-') && line[0] != '#')
 			set_link(rooms, line);
@@ -215,8 +227,8 @@ void	parse_l(t_room *rooms, t_struct *lemin, int err)
 			err = 1;
 		if (err == 1)
 		{
-			ft_printf("%s\n", "error");
-			break ;
+			ft_printf("%s\n", "error: not valid input");
+			exit(EXIT_FAILURE);
 		}
 		ft_strdel(&line);
 	}
@@ -238,12 +250,10 @@ int	main(int ac, char **av)
 	lemin = ft_memalloc(sizeof(t_struct));
 	rooms = ft_memalloc(sizeof(t_room));
 	if (ac > 2 || !av)
-		ft_printf("%s\n", "error");
-	parse_l(rooms, lemin, err);
-	if (err == 1)
 	{
-		printf("%s\n", "error");
-		return (0);
+		ft_printf("%s\n", "error: not valid ac number");
+		exit(EXIT_FAILURE);
 	}
+	parse_l(rooms, lemin, err);
 	return (0);
 }
