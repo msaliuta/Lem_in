@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/06 17:47:41 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/28 02:39:55 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 06:47:20 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,19 @@
 
 typedef struct s_room		t_room;
 typedef struct s_array		t_array;
-typedef	struct s_lem_in	t_struct;
+typedef	struct s_lem_in		t_struct;
 typedef struct s_input		t_input;
 
 struct	s_room
 {
-	t_array			*links;
-	t_room			*parent;
-	t_room			*next;
-	char			*name;
-	int				x;
-	int				y;
-	short			dst_from_end;
-	unsigned int	full_of_ants;
-	bool			visited;
+	t_array		*links;
+	t_room		*parent;
+	t_room		*next;
+	char		*name;
+	int			x;
+	int			y;
+	short		lvl;
+	int			ants;
 };
 
 struct	s_array
@@ -53,10 +52,37 @@ struct	s_lem_in
 	bool			links;
 	int				ants;
 	int				dst;
-	int				ants_at_the_end;
-	int				ants_left_at_start;
+	int				ants_left;
 	unsigned short	count_of_rooms;
-	bool			space;
+	int				n_path;
 };
+
+void	bfs_run(t_room *rooms, t_array *paths, t_struct *lemin);
+int		display_man(void);
+void	go_ants(t_struct *lemin, t_array *paths);
+void	step(int **ants, t_array *paths, t_struct *lemin);
+int		count_sum_of_paths(t_array *paths, int n);
+int		find_free_path(int n_path, t_array *paths);
+void	free_paths(int n_path, t_array *paths);
+void	block(int n_path, t_array *paths);
+void	zero(t_room *rooms);
+void	display_paths(char *start, int n_path, t_array *paths);
+void	path_create(t_struct *lemin, t_array **paths);
+bool	path_find(t_struct *lemin);
+int		ft_min(int a, int b);
+void	bfs(t_room **queue, t_room *curr, int *end);
+void	print_input(t_input *input);
+void	parse_l(t_room **rooms, t_struct *lemin, t_input *input);
+t_input	*save_input(char *line);
+int		check_ants(char *line);
+bool	set_room(t_room **rooms, t_struct *lemin, char *line, int n);
+bool	check_roomd(char *line, t_room *tmp);
+t_room	*new_room(char *line);
+int		check_nbr(char *line);
+t_array	*new_array(int def_size);
+int		set_link(t_struct *lemin, t_room *lst, char *line);
+int		is_room_exist(t_room **r_a, t_room **r_b, char **n_a, char **n_b);
+bool	expandable_arr(t_array **old);
+void	terminate(char *message);
 
 #endif

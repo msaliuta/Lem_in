@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/27 15:27:19 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/28 02:49:26 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 06:43:25 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 void	terminate(char *message)
 {
 	ft_printf("ERROR: %s\n", message);
-	system("leaks -q lem-in");
 	exit(1);
 }
 
@@ -122,12 +121,8 @@ t_room	*new_room(char *line)
 	check_nbr(line) ? tmp->x = ft_atoi(line) : 0;
 	line = ft_strchr(line, ' ') + 1;
 	tmp->y = ft_atoi(line);
-	tmp->dst_from_end = -1;
+	tmp->lvl = -1;
 	tmp->links = new_array(4);
-	tmp->full_of_ants = 0;
-	tmp->visited = false;
-	tmp->parent = NULL;
-	tmp->next = NULL;
 	return (tmp);
 }
 
@@ -151,12 +146,12 @@ bool	set_room(t_room **rooms, t_struct *lemin, char *line, int n)
 {
 	t_room	*tmp;
 
-	if (lemin->links)
-		terminate("Room after links");
+	lemin->links ? terminate("Room after links") : 0;
 	lemin->count_of_rooms++;
 	tmp = *rooms;
 	if (tmp->name == NULL)
 	{
+		free(*rooms);
 		*rooms = new_room(line);
 		tmp = *rooms;
 	}
@@ -199,7 +194,7 @@ t_input	*save_input(char *line)
 	return (tmp);
 }
 
-void	parse_l(t_room *rooms, t_struct *lemin, t_input *input)
+void	parse_l(t_room **rooms, t_struct *lemin, t_input *input)
 {
 	int		i;
 	char	*line;
@@ -219,9 +214,9 @@ void	parse_l(t_room *rooms, t_struct *lemin, t_input *input)
 		else if (line[0] == '#')
 			continue ;
 		else if (ft_chr_count(line, ' ') == 2 && *line != 'L' && lemin->ants)
-			set_room(&rooms, lemin, line, i) ? (i = 0) : 0;
+			set_room(rooms, lemin, line, i) ? (i = 0) : 0;
 		else if (ft_chr_count(line, '-') && line[0] != '#' && i == 0)
-			set_link(lemin, rooms, line) && (lemin->links = 1);
+			set_link(lemin, *rooms, line) && (lemin->links = 1);
 		else
 			terminate("Input invalid");
 	}
@@ -231,6 +226,208 @@ void	print_input(t_input *input)
 {
 	while ((input = input->next))
 		ft_printf("%s\n", input->str);
+	ft_printf("\n");
+}
+
+void	bfs(t_room **queue, t_room *curr, int *end)
+{
+	int	i;
+
+	i = -1;
+	while (++i < curr->links->size)
+	{
+		if (curr->links->links[i]->lvl == -1)
+		{
+			curr->links->links[i]->lvl = curr->lvl + 1;
+			curr->links->links[i]->parent = curr;
+			queue[(*end)++] = curr->links->links[i];
+		}
+	}
+}
+
+int		ft_min(int a, int b)
+{
+	return (a < b ? a : b);
+}
+
+bool	path_find(t_struct *lemin)
+{
+	t_room	**queue;
+	int		start;
+	int		end;
+
+	queue = ft_memalloc(sizeof(t_room*) * lemin->count_of_rooms + 1);
+	start = 0;
+	end = 1;
+	lemin->start->lvl = 0;
+	queue[start] = lemin->start;
+	while (start != end)
+	{
+		if (queue[start] == lemin->end)
+			break ;
+		bfs(queue, queue[start], &end);
+		start++;
+	}
+	free(queue);
+	return (!(lemin->end->parent == NULL));
+}
+
+void	path_create(t_struct *lemin, t_array **paths)
+{
+	t_room	*tmp;
+
+	(*paths)[lemin->n_path].size = lemin->end->lvl;
+	(*paths)[lemin->n_path].links = malloc(sizeof(t_room*) * lemin->end->lvl);
+	tmp = lemin->end;
+	while (tmp != lemin->start)
+	{
+		(*paths)[lemin->n_path].links[tmp->lvl - 1] = tmp;
+		tmp = tmp->parent;
+	}
+	lemin->n_path += 1;
+}
+
+void	display_paths(char *start, int n_path, t_array *paths)
+{
+	int	path;
+	int	room;
+
+	path = -1;
+	while (++path < n_path && (room = -1))
+	{
+		ft_printf("%s-->", start);
+		while (++room < paths[path].size)
+			ft_printf("%s%s", paths[path].links[room]->name,
+			room == paths[path].size - 1 ? "\n" : "-->");
+	}
+}
+
+void	zero(t_room *rooms)
+{
+	t_room	*tmp;
+
+	tmp = rooms;
+	while (tmp)
+	{
+		tmp->lvl = -1;
+		tmp->parent = NULL;
+		tmp = tmp->next;
+	}
+}
+
+void	block(int n_path, t_array *paths)
+{
+	int	path;
+	int	room;
+
+	path = -1;
+	while (++path < n_path && (room = -1))
+		while (++room < paths[path].size - 1)
+			paths[path].links[room]->lvl = -2;
+}
+
+void	free_paths(int n_path, t_array *paths)
+{
+	int	path;
+
+	path = -1;
+	while (++path < n_path)
+		free(paths[path].links);
+}
+
+int		find_free_path(int n_path, t_array *paths)
+{
+	int	i;
+
+	i = -1;
+	while (++i < n_path)
+		if (paths[i].size == 1 || paths[i].links[0]->ants == 0)
+			return (i);
+	return (-1);
+}
+
+int		count_sum_of_paths(t_array *paths, int n)
+{
+	int	i;
+	int	sum;
+
+	if (n == 0)
+		return (0);
+	i = -1;
+	sum = 0;
+	while (++i < n)
+		sum += (paths[n].size - paths[i].size);
+	return (sum);
+}
+
+void	step(int **ants, t_array *paths, t_struct *lemin)
+{
+	int		i;
+	int		r;
+
+	i = -1;
+	while (++i < lemin->ants)
+		if (ants[i][0] == -1
+			&& ((r = find_free_path(lemin->n_path, paths)) != -1)
+			&& ((lemin->ants_left) > count_sum_of_paths(paths, r)))
+		{
+			--(lemin->ants_left);
+			ants[i][0] = r;
+			ft_printf("L%d-%s ", i + 1, paths[r].links[ants[i][1]]->name);
+			++(paths[r].links[ants[i][1]]->ants);
+		}
+		else if (ants[i][0] != -1 && paths[ants[i][0]].size - 1 != ants[i][1])
+		{
+			--(paths[ants[i][0]].links[ants[i][1]]->ants);
+			ft_printf("L%d-%s ", i + 1,
+			paths[ants[i][0]].links[++ants[i][1]]->name);
+			++(paths[ants[i][0]].links[ants[i][1]]->ants);
+		}
+}
+
+void	go_ants(t_struct *lemin, t_array *paths)
+{
+	int		**ants;
+	int		i;
+
+	ants = malloc(sizeof(int*) * lemin->ants);
+	i = -1;
+	while (++i < lemin->ants)
+		(ants[i] = (int*)ft_memalloc(sizeof(int) * 2))
+		&& (ants[i][0] = -1);
+	lemin->ants_left = lemin->ants;
+	while (lemin->end->ants != lemin->ants)
+	{
+		step(ants, paths, lemin);
+		ft_printf("\n");
+	}
+	i = -1;
+	while (++i < lemin->ants)
+		free(ants[i]);
+	free(ants);
+}
+
+int		display_man(void)
+{
+	ft_printf("To use it: ./lem-in < map\n");
+	ft_printf("And you can use flag: ./lem-in [-flag] < map\n");
+	ft_printf("To look at foud ways use flag: [-p]\n");
+	ft_printf("To look at my lem-in help use flag: [-h]\n");
+	ft_printf("To check leaks use flag: [-l]\n");
+	ft_printf("To hide input use flag: [-o]\n");
+	return (0);
+}
+
+void	bfs_run(t_room *rooms, t_array *paths, t_struct *lemin)
+{
+	while (path_find(lemin))
+	{
+		path_create(lemin, &paths);
+		if (paths[0].size == 1)
+			break ;
+		zero(rooms);
+		block(lemin->n_path, paths);
+	}
 }
 
 int		main(int ac, char **av)
@@ -238,22 +435,25 @@ int		main(int ac, char **av)
 	t_room		*rooms;
 	t_struct	*lemin;
 	t_input		*input;
-	//t_array		*ways;
+	t_array		*paths;
 
-	//ways = ft_memalloc(sizeof(t_input));
 	input = ft_memalloc(sizeof(t_input));
 	lemin = ft_memalloc(sizeof(t_struct));
 	rooms = ft_memalloc(sizeof(t_room));
-	if (ac > 2 || !av)
-	{
-		ft_printf("%s\n", "error: not valid ac number");
-		exit(EXIT_FAILURE);
-	}
-	parse_l(rooms, lemin, input);
+	(ac > 2 || !av) ? terminate("not valid ac number") : 0;
+	if (ac == 2 && (ft_strequ(av[1], "-h") || (av[1][1] != 'p' &&
+	av[1][1] != 'o' && av[1][1] != 'l') || av[1][0] != '-' || !av[1][1]))
+		return (display_man());
+	parse_l(&rooms, lemin, input);
 	(!lemin->links) ? terminate("No links") : 0;
-	print_input(input);
-	//find_the_ways(lemin, ways, av[1]);
-	ft_printf("%s\n", "valid input");
-	system("leaks -q lem-in");
+	paths = ft_memalloc(sizeof(t_array) *
+				ft_min(lemin->start->links->size, lemin->end->links->size));
+	bfs_run(rooms, paths, lemin);
+	(!lemin->n_path) ? terminate("No paths") : 0;
+	ft_strequ(av[1], "-o") ? 0 : print_input(input);
+	go_ants(lemin, paths);
+	ft_strequ(av[1], "-p") ? display_paths(lemin->start->name,
+	lemin->n_path, paths) : 0;
+	ft_strequ(av[1], "-l") ? system("leaks -q lem-in") : 0;
 	return (0);
 }
