@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/06 17:47:41 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/29 06:47:20 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 15:32:41 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,21 +57,35 @@ struct	s_lem_in
 	int				n_path;
 };
 
+/*
+**algo_start.s
+*/
+
 void	bfs_run(t_room *rooms, t_array *paths, t_struct *lemin);
+bool	path_find(t_struct *lemin);
+void	path_create(t_struct *lemin, t_array **paths);
+void	zero(t_room *rooms);
+void	block(int n_path, t_array *paths);
+
+/*
+**help_functs.c
+*/
+
 int		display_man(void);
+void	free_paths(int n_path, t_array *paths);
+void	bfs(t_room **queue, t_room *curr, int *end);
+int		ft_min(int a, int b);
+void	print_input(t_input *input);
+
+/*
+**
+*/
+
 void	go_ants(t_struct *lemin, t_array *paths);
 void	step(int **ants, t_array *paths, t_struct *lemin);
 int		count_sum_of_paths(t_array *paths, int n);
 int		find_free_path(int n_path, t_array *paths);
-void	free_paths(int n_path, t_array *paths);
-void	block(int n_path, t_array *paths);
-void	zero(t_room *rooms);
 void	display_paths(char *start, int n_path, t_array *paths);
-void	path_create(t_struct *lemin, t_array **paths);
-bool	path_find(t_struct *lemin);
-int		ft_min(int a, int b);
-void	bfs(t_room **queue, t_room *curr, int *end);
-void	print_input(t_input *input);
 void	parse_l(t_room **rooms, t_struct *lemin, t_input *input);
 t_input	*save_input(char *line);
 int		check_ants(char *line);

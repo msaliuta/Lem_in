@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/27 15:27:19 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/29 06:43:25 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 15:32:37 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,71 +222,6 @@ void	parse_l(t_room **rooms, t_struct *lemin, t_input *input)
 	}
 }
 
-void	print_input(t_input *input)
-{
-	while ((input = input->next))
-		ft_printf("%s\n", input->str);
-	ft_printf("\n");
-}
-
-void	bfs(t_room **queue, t_room *curr, int *end)
-{
-	int	i;
-
-	i = -1;
-	while (++i < curr->links->size)
-	{
-		if (curr->links->links[i]->lvl == -1)
-		{
-			curr->links->links[i]->lvl = curr->lvl + 1;
-			curr->links->links[i]->parent = curr;
-			queue[(*end)++] = curr->links->links[i];
-		}
-	}
-}
-
-int		ft_min(int a, int b)
-{
-	return (a < b ? a : b);
-}
-
-bool	path_find(t_struct *lemin)
-{
-	t_room	**queue;
-	int		start;
-	int		end;
-
-	queue = ft_memalloc(sizeof(t_room*) * lemin->count_of_rooms + 1);
-	start = 0;
-	end = 1;
-	lemin->start->lvl = 0;
-	queue[start] = lemin->start;
-	while (start != end)
-	{
-		if (queue[start] == lemin->end)
-			break ;
-		bfs(queue, queue[start], &end);
-		start++;
-	}
-	free(queue);
-	return (!(lemin->end->parent == NULL));
-}
-
-void	path_create(t_struct *lemin, t_array **paths)
-{
-	t_room	*tmp;
-
-	(*paths)[lemin->n_path].size = lemin->end->lvl;
-	(*paths)[lemin->n_path].links = malloc(sizeof(t_room*) * lemin->end->lvl);
-	tmp = lemin->end;
-	while (tmp != lemin->start)
-	{
-		(*paths)[lemin->n_path].links[tmp->lvl - 1] = tmp;
-		tmp = tmp->parent;
-	}
-	lemin->n_path += 1;
-}
-
 void	display_paths(char *start, int n_path, t_array *paths)
 {
 	int	path;
@@ -300,39 +235,6 @@ void	display_paths(char *start, int n_path, t_array *paths)
 			ft_printf("%s%s", paths[path].links[room]->name,
 			room == paths[path].size - 1 ? "\n" : "-->");
 	}
-}
-
-void	zero(t_room *rooms)
-{
-	t_room	*tmp;
-
-	tmp = rooms;
-	while (tmp)
-	{
-		tmp->lvl = -1;
-		tmp->parent = NULL;
-		tmp = tmp->next;
-	}
-}
-
-void	block(int n_path, t_array *paths)
-{
-	int	path;
-	int	room;
-
-	path = -1;
-	while (++path < n_path && (room = -1))
-		while (++room < paths[path].size - 1)
-			paths[path].links[room]->lvl = -2;
-}
-
-void	free_paths(int n_path, t_array *paths)
-{
-	int	path;
-
-	path = -1;
-	while (++path < n_path)
-		free(paths[path].links);
 }
 
 int		find_free_path(int n_path, t_array *paths)
@@ -405,29 +307,6 @@ void	go_ants(t_struct *lemin, t_array *paths)
 	while (++i < lemin->ants)
 		free(ants[i]);
 	free(ants);
-}
-
-int		display_man(void)
-{
-	ft_printf("To use it: ./lem-in < map\n");
-	ft_printf("And you can use flag: ./lem-in [-flag] < map\n");
-	ft_printf("To look at foud ways use flag: [-p]\n");
-	ft_printf("To look at my lem-in help use flag: [-h]\n");
-	ft_printf("To check leaks use flag: [-l]\n");
-	ft_printf("To hide input use flag: [-o]\n");
-	return (0);
-}
-
-void	bfs_run(t_room *rooms, t_array *paths, t_struct *lemin)
-{
-	while (path_find(lemin))
-	{
-		path_create(lemin, &paths);
-		if (paths[0].size == 1)
-			break ;
-		zero(rooms);
-		block(lemin->n_path, paths);
-	}
 }
 
 int		main(int ac, char **av)
