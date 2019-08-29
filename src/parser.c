@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/29 16:47:08 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/29 16:53:13 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 19:20:01 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ void	parse_l(t_room **rooms, t_struct *lemin, t_input *input)
 	{
 		input->next = save_input(line);
 		input = input->next;
+		(line[0] == '#' && i != 0) ? terminate("error") : 0;
 		if (lemin->ants == 0 && check_ants(line))
 			lemin->ants = ft_atoi(line);
 		else if (line[0] == '#' && line[1] == '#' && i == 0 && lemin->ants)
@@ -29,12 +30,12 @@ void	parse_l(t_room **rooms, t_struct *lemin, t_input *input)
 			ft_strequ(line, "##start") ? (i = 1) : 0;
 			ft_strequ(line, "##end") ? (i = 2) : 0;
 		}
-		else if (line[0] == '#')
-			continue ;
 		else if (ft_chr_count(line, ' ') == 2 && *line != 'L' && lemin->ants)
 			set_room(rooms, lemin, line, i) ? (i = 0) : 0;
 		else if (ft_chr_count(line, '-') && line[0] != '#' && i == 0)
 			set_link(lemin, *rooms, line) && (lemin->links = 1);
+		else if (line[0] == '#')
+			continue ;
 		else
 			terminate("Input invalid");
 	}
