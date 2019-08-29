@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/06 17:47:41 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/29 15:32:41 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 17:09:36 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,25 +78,45 @@ int		ft_min(int a, int b);
 void	print_input(t_input *input);
 
 /*
-**
+**parser.c
 */
 
-void	go_ants(t_struct *lemin, t_array *paths);
-void	step(int **ants, t_array *paths, t_struct *lemin);
-int		count_sum_of_paths(t_array *paths, int n);
-int		find_free_path(int n_path, t_array *paths);
-void	display_paths(char *start, int n_path, t_array *paths);
 void	parse_l(t_room **rooms, t_struct *lemin, t_input *input);
 t_input	*save_input(char *line);
 int		check_ants(char *line);
 bool	set_room(t_room **rooms, t_struct *lemin, char *line, int n);
+int		set_link(t_struct *lemin, t_room *lst, char *line);
+
+/*
+**path_functs.c
+*/
+
+void	display_paths(char *start, int n_path, t_array *paths);
+int		find_free_path(int n_path, t_array *paths);
+int		count_sum_of_paths(t_array *paths, int n);
+void	go_ants(t_struct *lemin, t_array *paths);
+bool	expandable_arr(t_array **old);
+
+/*
+**room_functs.c
+*/
+
+int		is_room_exist(t_room **r_a, t_room **r_b, char **n_a, char **n_b);
 bool	check_roomd(char *line, t_room *tmp);
+t_array	*new_array(int def_size);
+void	step(int **ants, t_array *paths, t_struct *lemin);
+
+/*
+**functs.c
+*/
+
 t_room	*new_room(char *line);
 int		check_nbr(char *line);
-t_array	*new_array(int def_size);
-int		set_link(t_struct *lemin, t_room *lst, char *line);
-int		is_room_exist(t_room **r_a, t_room **r_b, char **n_a, char **n_b);
-bool	expandable_arr(t_array **old);
+
+/*
+**main.c
+*/
+
 void	terminate(char *message);
 
 #endif

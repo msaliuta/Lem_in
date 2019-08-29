@@ -6,7 +6,7 @@
 /*   By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/29 15:20:17 by msaliuta          #+#    #+#             */
-/*   Updated: 2019/08/29 15:24:22 by msaliuta         ###   ########.fr       */
+/*   Updated: 2019/08/29 16:19:07 by msaliuta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ bool	path_find(t_struct *lemin)
 	free(queue);
 	return (!(lemin->end->parent == NULL));
 }
-
 
 void	path_create(t_struct *lemin, t_array **paths)
 {

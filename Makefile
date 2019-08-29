@@ -6,7 +6,7 @@
 #    By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/29 15:10:41 by msaliuta          #+#    #+#              #
-#    Updated: 2019/08/29 15:33:11 by msaliuta         ###   ########.fr        #
+#    Updated: 2019/08/29 17:09:57 by msaliuta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,10 @@ INCS	=	-I$(addprefix $(LIBD)/, $(INCD)) -I $(INCD)
 SRCS	=	lem_in.c\
 			algo_start.c\
 			help_functs.c\
+			parser.c\
+			path_functs.c\
+			room_functs.c\
+			functs.c\
 
 OBJS	=	$(addprefix $(OBJD)/, $(SRCS:.c=.o))
 
