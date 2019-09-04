@@ -6,7 +6,7 @@
 #    By: msaliuta <msaliuta@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/29 15:10:41 by msaliuta          #+#    #+#              #
-#    Updated: 2019/08/29 17:09:57 by msaliuta         ###   ########.fr        #
+#    Updated: 2019/09/04 18:50:13 by msaliuta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ $(NAME): $(OBJS)
 	@$(CMPL) $(CFLG) -o $(NAME) $^ -L$(LIBD) -lft $(INCS)
 	@echo " lem-in is ready"
 
-$(OBJD)/%.o: $(SRCD)/%.c | $(OBJD)
+$(OBJD)/%.o: $(SRCD)/%.c $(INCD)/lem_in.h | $(OBJD)
 	@$(CMPL) $(CFLG) -o $@ -c $< $(INCS)
 	@echo ".\c"
 
