@@ -8,7 +8,7 @@ Your ant colony must move from on point to another. How do you do it in the shor
 
 ## Installation
 
-Use the link below to install ft_printf.
+Use the link below to install lem_in.
 
 ```bash
 https://github.com/msaliuta/Lem_in.git
